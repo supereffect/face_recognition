@@ -54,7 +54,8 @@ class FaceRecognition:
 
     def run_recognition(self):
         start_time = time.time()
-        video_capture = cv2.VideoCapture(2)
+        # Vide kaynağı adresi
+        video_capture = cv2.VideoCapture(1)
         if not video_capture.isOpened():
             sys.exit('Video source not found...')
 
@@ -67,16 +68,13 @@ class FaceRecognition:
 
         while True:
             ret, frame = video_capture.read()
-            # Only process every other frame of video to save time
+            
             if self.process_current_frame:
-                # Resize frame of video to 1/4 size for faster face recognition processing
+            
                 small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
-                # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
-                # rgb_small_frame = small_frame[:, :, ::-1]
                 rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
 
-                # Find all the faces and face encodings in the current frame of video
                 self.face_locations = face_recognition.face_locations(
                     rgb_small_frame)
                 self.face_encodings = face_recognition.face_encodings(
@@ -92,13 +90,13 @@ class FaceRecognition:
                             break
 
                 for face_encoding in self.face_encodings:
-                    # See if the face is a match for the known face(s)
+                    # Bilindik bir eşleşme var ise
                     matches = face_recognition.compare_faces(
                         self.known_face_encodings, face_encoding)
                     name = "Unknown"
                     confidence = '???'
 
-                    # Calculate the shortest distance to face
+                    # En kısa yol hesabı
                     face_distances = face_recognition.face_distance(
                         self.known_face_encodings, face_encoding)
 
@@ -112,7 +110,7 @@ class FaceRecognition:
                             start_time = time.time()
                         else:
                             current_time = time.time()
-                         # Eğer 15 saniye boyunca tanınmayan kişi tespit edilmezse
+                         # Eğer 5 saniye boyunca tanınmayan kişi tespit edilmezse
                             if current_time - start_time >= 5:
                         # Win+L tuş kombinasyonunu simule etmek için ctypes kullanımı
                                 ctypes.windll.user32.LockWorkStation()
@@ -135,17 +133,17 @@ class FaceRecognition:
                 bottom *= 4
                 left *= 4
                 # if not matches[best_match_index]:
-                #     # Yüz konumlarını almadan önce konumları güncelleyin
+                #     
                 #     top = top * 4
                 #     right = right * 4
                 #     bottom = bottom * 4
                 #     left = left * 4
 
-                #     # Bilinmeyen yüz görüntüsünü yakalayın
+                #     # Bilinmeyen yüz görüntüsünü yakalama
                 #     unknown_face_image = frame[top:bottom, left:right]
                 #     self.face_images.append(unknown_face_image)
 
-                #     # Kullanıcıdan dosya adını alın
+                #     # Kullanıcıdan kayıt adı al
                 #     name_entry_text = file_name_entry.get()
                 #     self.unknown_face_names.append(name_entry_text)
                 # Create the frame with the name
@@ -156,18 +154,14 @@ class FaceRecognition:
                 cv2.putText(frame, name, (left + 6, bottom - 6),
                             cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
 
-           
-
-
-
-            # Display the resulting image
+          
             cv2.imshow('Face Recognition', frame)
 
-            # Hit 'q' on the keyboard to quit!
+            #  Çıkmak için q'ya basınız
             if cv2.waitKey(1) == ord('q'):
                 break
 
-        # Release handle to the webcam
+        # Kamerayı serbest bırakmak için gereken komutlar
         video_capture.release()
         cv2.destroyAllWindows()
 
